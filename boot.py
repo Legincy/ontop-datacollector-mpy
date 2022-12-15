@@ -1,7 +1,9 @@
 # -*- coding:utf-8 -*-
 import json
 import os
+import esp
 import network
+import machine
 from lib.uweb import OnTopHttp
 from lib.sys_helper import file_or_dir_exists
 
@@ -10,22 +12,36 @@ class Boot:
     def __init__(self):
         self._device = None
         self._ready = False
-        with open("/config/global.json", mode="r", encoding="utf-8") as global_config:
-            global_config_dict = json.load(global_config)
-            self._network_config_path = global_config_dict["network_config_path"]
-            self._ap_ssid = global_config_dict["ap_ssid"]
-            self._ap_password = global_config_dict["ap_password"]
-            self._ap_http_host = global_config_dict["ap_http_host"]
-            self._ap_http_port = global_config_dict["ap_http_port"]
-            self._ap_http_source = global_config_dict["ap_http_source"]
+        
+        # reading config from file
+        try:
+            with open("/config/global.json", mode="r", encoding="utf-8") as global_config:
+                global_config_dict = json.load(global_config)
+                self._network_config_path = global_config_dict["network_config_path"]
+                self._ap_ssid = global_config_dict["ap_ssid"]
+                self._ap_password = global_config_dict["ap_password"]
+                self._ap_http_host = global_config_dict["ap_http_host"]
+                self._ap_http_port = global_config_dict["ap_http_port"]
+                self._ap_http_source = global_config_dict["ap_http_source"]
+        except FileNotFoundError:
+            print("missing global.json - this file is mandatory!")
+        except:
+            print("failed to load global.json - this file is mandatory!")
 
     def start(self):
+        print("Booting Datacollector Firmware now...")
+        
+        # reduce CPU clock to 80MHz for lower power consumption
+        machine.freq(80000000)
+
         self.setup()
         while self._ready is False:
             pass
 
     def setup(self):
+        #check if network config exists, otherwise start AP for smartphone-configuration
         if file_or_dir_exists(self._network_config_path):
+            # remove file if size is 0 byte, start again
             if os.stat(self._network_config_path)[6] == 0:
                 os.remove(self._network_config_path)
                 self.setup()
@@ -33,12 +49,16 @@ class Boot:
             self.connect()
             self._ready = True
         else:
+            print("No WiFi station configured. Starting access point for configuration.")
             self.open_access_point()
             ontop_http = OnTopHttp(self._ap_http_host, self._ap_http_port, self._ap_http_source)
+            print("Starting webserver for WiFi configuration.")
             ontop_http.start()
 
     def open_access_point(self):
+        # change WLAN driver to AP mode
         self._device = network.WLAN(network.AP_IF)
+        
         if self._device.isconnected():
             self._device.disconnect()
         self._device.active(True)

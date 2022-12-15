@@ -18,9 +18,12 @@ class OnTopService:
 
     def post_register_board(self, id=None):
         request_body = {"id": id}
-        response = requests.post(f"{self.api_url}/register", json=request_body, headers=self.headers)
-
-        return response.json()
+        try:
+            response = requests.post(f"{self.api_url}/register", json=request_body, headers=self.headers)
+            return response.json()
+        except:
+            print("error at board-registering")
+            raise Exception
 
     def post_heartbeat(self, id):
         request_body = {"id": id}

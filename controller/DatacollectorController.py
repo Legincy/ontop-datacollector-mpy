@@ -25,13 +25,16 @@ class DatacollectorController:
                 os.remove(self._device_config_path)
                 self.setup()
 
-            self.load_device_config()
-            self.register_device()
+            try:
+                self.load_device_config()
+                self.register_device()
+            except:
+                pass
 
             # self._sensor_controller.setup(self)
             # self._sensor_controller.prepare_sensor_list()
 
-            print(f"Device Loaded {self._datacollector.board_id}:{self._datacollector.board_name}")
+            print(f"Device configuration loaded: {self._board_name} ({self._uuid})")
         else:
             self.register_device()
 
@@ -39,19 +42,33 @@ class DatacollectorController:
         # self._async_loop.create_task(self.task_test1())
 
     def load_device_config(self):
-        with open(self._device_config_path, mode="r", encoding="utf-8") as device_config:
-            device_config_dict = json.load(device_config)
+        try:
+            with open(self._device_config_path, mode="r", encoding="utf-8") as device_config:
+                device_config_dict = json.load(device_config)
 
-        print(device_config_dict)
-        self._datacollector.load_config_dict(device_config_dict)
+            print(device_config_dict)
+            self._datacollector.load_config_dict(device_config_dict)
+        except FileNotFoundError:
+            pass
+        except:
+            print("failed to load device config")
 
     def register_device(self):
-        device_uuid = None if self._datacollector.board_id is None else self._datacollector.board_id
-        response_dict = self._ontop_service.post_register_board(device_uuid)
-        with open(self._device_config_path, mode="wb", encoding="utf-8") as device_config:
-            json.dump(response_dict, device_config)
+        device_uuid = None if self._uuid is None else self._uuid
+        
+        try:
+            response_dict = self._ontop_service.post_register_board(device_uuid)
+            with open(self._device_config_path, mode="wb", encoding="utf-8") as device_config:
+                json.dump(response_dict, device_config)
+        except:
+            print("Could not fetch config.")
 
-        self._datacollector.load_config_dict(response_dict)
+        try:
+            if response_dict is not None:
+                self.load_config_dict(response_dict)
+        except Exception as e:
+            print("Could not load config.")
+            print(e)
 
     async def task_collect_sensor_data(self):
         while True:

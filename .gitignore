@@ -1,4 +1,5 @@
 .idea
+pymakr.conf
 config/*.json
 !config/onewire-fc.json
 !config/pin-config.json

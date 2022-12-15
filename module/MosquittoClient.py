@@ -20,7 +20,7 @@ class MosquittoClient:
                                        self._mqtt_port, self._mqtt_user, self._mqtt_password, 30)
         self._mqtt_client.connect()
 
-        print(f'Connected to {self._mqtt_host} MQTT broker')
+        print(f'Connected to MQTT broker {self._mqtt_host}:{self._mqtt_port} as {self._mqtt_user}')
 
     def publish(self, topic, message):
         topic_bytes = str.encode(str(topic))
