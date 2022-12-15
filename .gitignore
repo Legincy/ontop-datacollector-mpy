@@ -1,5 +1,7 @@
 .idea
 config/*.json
+!config/onewire-fc.json
+!config/pin-config.json
 .docker/*/
 .docker/config/*.passwd
 !.docker/config

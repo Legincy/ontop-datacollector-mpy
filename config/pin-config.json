@@ -1,0 +1,20 @@
+{
+  "DC_LED": 15,
+  "DC_GPIO_01": 23,
+  "DC_GPIO_02": 19,
+  "DC_GPIO_03": 18,
+  "DC_GPIO_04": 17,
+  "DC_GPIO_05": 16,
+  "DC_GPIO_06": 32,
+  "DC_GPIO_07": 33,
+  "DC_ANLG_01": null,
+  "DC_ANLG_02": null,
+  "DC_SPI": {
+    "miso": 12,
+    "mosi": 13
+  },
+  "DC_I2C": {
+    "sda": 21,
+    "scl": 22
+  }
+}
