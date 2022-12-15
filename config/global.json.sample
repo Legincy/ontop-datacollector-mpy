@@ -1,0 +1,15 @@
+{
+  "device_config_path": "/config/device-config.json",
+  "network_config_path": "/config/network-config.json",
+  "ap_ssid": "OnTop-Datacollector",
+  "ap_password": "ontop12345!",
+  "ap_http_host": "0.0.0.0",
+  "ap_http_port": 80,
+  "ap_http_source": "lib/uweb/www",
+  "api_url": "",
+  "mqtt_host": "",
+  "mqtt_port": 1883,
+  "mqtt_user": "",
+  "mqtt_password": "",
+  "mqtt_update_interval_ms": 10000
+}

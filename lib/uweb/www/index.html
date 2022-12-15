@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>OnTop - WiFi Manager</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" href="data:,">
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link rel="stylesheet" type="text/css" href="css/font.css">
+      </head>
+      <body onload="getUID()">
+       <header class="primary-header">
+        <div class="container">
+          <a href="#"><img src="static/svg/logo.svg" id="logo" alt="OnTop-Logo"></a>
+        </div>
+       </header>
+       <main>
+        <div class="container fc-primary-400 ff-priamry">
+          <div class="form-wrapper">
+            <div class="text-wrapper">
+              <h1>WiFi-Konfiguration</h1>
+              <p id="uid"></p> 
+            </div>
+            <form class="wifi-form" action="/wifi-configuration" method="POST">
+              <div class="input-wrapper" id="ssid-wrapper">
+                <label for="ssid" class="label fs-700">SSID</label>
+                    <input placeholder="Heimnetzwerk" id="ssid" name="ssid" class="fs-800" maxlength="32" type="text">
+              </div>
+              <div class="input-wrapper" id="password-wrapper">
+                  <label for="password" class="label fs-700">Passwort</label>
+                <input type="password" title="password" placeholder="Passwort" id="password" name="password" maxlength="32" class="fs-800">
+              </div>
+              <div class="input-wrapper" id="gateway-wrapper">
+                <label for="gateway" class="label fs-700">Gateway</label>
+                <input placeholder="192.168.10.1" id="gateway" name="gateway" class="fs-800" maxlength="15" type="text">
+              </div>
+              <div class="input-wrapper" id="subnet-wrapper">
+                <label for="subnet" class="label fs-700">Subnetzmaske</label>
+                <input placeholder="255.255.255.0" id="subnet" name="subnet" class="fs-800" maxlength="15" type="text">
+              </div>
+              <div class="input-wrapper" id="ip-config-wrapper">
+                <p class="label fs-700"> IP-Adresse</p>
+                <div class="option-wrapper">
+                  <div class="option-child">
+                    <p class="text fs-700">Dynamische IP-Adresse</p>
+                    <label class="switch">
+                      <input type="checkbox" title="static-ip" id="cb-static-ip" name="cb-static-ip" checked>
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+                  <div id="div-static-ip" class="option-child">
+                    <label for="static-ip" class="text fs-700">Statische IP-Adresse</label>
+                    <input placeholder="192.168.10.53" class="fs-800" type="text" maxlength="15" id="static-ip" name="static-ip">
+                  </div>
+                </div>
+              </div>
+              <input type ="submit" disabled class="button fw-bold" id="save-btn" value ="Speichern">
+            </form>
+          </div>
+        </div>
+       </main>
+       <img src="static/svg/graphic.svg" id="bottom-graphic" alt="">
+       <script src="js/index.js"></script>
+      </body>
+</html>

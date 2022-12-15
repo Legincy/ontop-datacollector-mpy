@@ -1,0 +1,6 @@
+.idea
+config/*.json
+.docker/*/
+.docker/config/*.passwd
+!.docker/config
+*.iml

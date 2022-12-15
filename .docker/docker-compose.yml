@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: ontop_mosquitto
+    volumes:
+      - ./config:/mosquitto/config
+      - ./data:/mosquitto/data
+      - ./log:/mosquitto/log
+    ports:
+      - "1883:1883"
+      - "9001:9001"
