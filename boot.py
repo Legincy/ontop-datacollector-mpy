@@ -1,10 +1,9 @@
 # -*- coding:utf-8 -*-
 import json
-import os
-import esp
+import os, errno
+import esp, gc
 import network
 import machine
-from lib.uweb import OnTopHttp
 from lib.sys_helper import file_or_dir_exists
 
 
@@ -23,13 +22,13 @@ class Boot:
                 self._ap_http_host = global_config_dict["ap_http_host"]
                 self._ap_http_port = global_config_dict["ap_http_port"]
                 self._ap_http_source = global_config_dict["ap_http_source"]
-        except FileNotFoundError:
-            print("missing global.json - this file is mandatory!")
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                print("missing global.json - this file is mandatory!")
         except:
             print("failed to load global.json - this file is mandatory!")
 
     def start(self):
-        print("Booting Datacollector Firmware now...")
         
         # reduce CPU clock to 80MHz for lower power consumption
         machine.freq(80000000)
@@ -37,6 +36,7 @@ class Boot:
         self.setup()
         while self._ready is False:
             pass
+
 
     def setup(self):
         #check if network config exists, otherwise start AP for smartphone-configuration
@@ -51,6 +51,7 @@ class Boot:
         else:
             print("No WiFi station configured. Starting access point for configuration.")
             self.open_access_point()
+            from lib.uweb import OnTopHttp
             ontop_http = OnTopHttp(self._ap_http_host, self._ap_http_port, self._ap_http_source)
             print("Starting webserver for WiFi configuration.")
             ontop_http.start()
@@ -82,5 +83,8 @@ class Boot:
 
 
 if __name__ == '__main__':
+    print("Booting Datacollector Firmware now...")
     boot = Boot()
     boot.start()
+    gc.collect()
+    print("Bootsequence done.")

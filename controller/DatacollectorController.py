@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 import uasyncio as asyncio
-import os
+import os, errno
 from lib.sys_helper import file_or_dir_exists
 from module.Datacollector import Datacollector
 from module.MosquittoClient import MosquittoClient
@@ -34,7 +34,7 @@ class DatacollectorController:
             # self._sensor_controller.setup(self)
             # self._sensor_controller.prepare_sensor_list()
 
-            print(f"Device configuration loaded: {self._board_name} ({self._uuid})")
+            print(f"Device configuration loaded: {self._datacollector._board_name} ({self._datacollector._board_id})")
         else:
             self.register_device()
 
@@ -48,13 +48,14 @@ class DatacollectorController:
 
             print(device_config_dict)
             self._datacollector.load_config_dict(device_config_dict)
-        except FileNotFoundError:
-            pass
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                pass
         except:
             print("failed to load device config")
 
     def register_device(self):
-        device_uuid = None if self._uuid is None else self._uuid
+        device_uuid = None if self._datacollector._board_id is None else self._datacollector._board_id
         
         try:
             response_dict = self._ontop_service.post_register_board(device_uuid)
@@ -65,7 +66,7 @@ class DatacollectorController:
 
         try:
             if response_dict is not None:
-                self.load_config_dict(response_dict)
+                self._datacollector.load_config_dict(response_dict)
         except Exception as e:
             print("Could not load config.")
             print(e)

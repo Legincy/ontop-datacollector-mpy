@@ -2,7 +2,8 @@
 import json
 import time
 import machine
-from lib.uweb import MicroWebSrv2
+from lib.uweb.microWebSrv2 import MicroWebSrv2
+from lib.uweb.webRoute import *
 
 
 class OnTopHttp:

@@ -3,9 +3,6 @@ import gc
 import uasyncio as asyncio
 from controller.DatacollectorController import DatacollectorController
 
-gc.collect()
-
-
 class Main:
     def __init__(self):
         self._async_loop = asyncio.get_event_loop()
@@ -17,6 +14,7 @@ class Main:
 
     async def main(self):
         while True:
+            print("doing nothing?")
             await asyncio.sleep(1)
 
     def get_async_loop(self):
@@ -27,4 +25,11 @@ class Main:
 
 if __name__ == '__main__':
     main = Main()
-    main.setup()
+    try:
+        main.setup()
+    except Exception as e:
+        print("fail in main setup")
+        print(e)
+
+    gc.collect()
+    print("Setup completed")
