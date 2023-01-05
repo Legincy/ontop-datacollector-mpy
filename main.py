@@ -31,16 +31,12 @@ class Main:
 
     async def main(self):
         while True:
-            self.display.header()
             self.display.drawMeasurement("Temperatur", 23.22)
             await asyncio.sleep(1)
-            self.display.header(wifidBm = -100)
             self.display.drawMeasurement("Swag", "100 %")
             await asyncio.sleep(1)
-            self.display.header(wifidBm = -50)
             self.display.drawMeasurement("Feuchte", 0.5124)
             await asyncio.sleep(1)
-            self.display.header(wifidBm = -5)
             self.display.drawMeasurement("daswirdzulangseinseinsein", "20 cm")
             await asyncio.sleep(1)
 

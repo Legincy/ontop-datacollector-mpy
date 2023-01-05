@@ -15,6 +15,20 @@ class Display():
         self.display.fill(0)
         self.display.show()
 
+    def __getWifiRssi(self):
+        rssi = 0
+        
+        try:
+            import network
+            nic = network.WLAN(network.STA_IF)
+            if nic.isconnected():
+                rssi = nic.status('rssi')
+        except Exception as e:
+            print("getRSSI failed")
+            print(e)
+
+        return rssi
+
     def __wifi(self, dbm):
         if dbm is None or dbm == 0:
             xpos = self.width - 8*8 # "No Wifi!"-> 8 chars * 8 pixels
@@ -60,10 +74,12 @@ class Display():
         self.display.fill_rect(0, 0, int(self.width / 2), 8, 0) # first half of header
         self.display.text(timestr, xpos, ypos)
 
-    def header(self, time=None, wifidBm=None):
+    def header(self, time=None, wifidBm=None, draw = True):
         import time as timemodule
         if time is None:
             time = timemodule.localtime()
+        if wifidBm is None:
+            wifidBm = self.__getWifiRssi()
 
         self.__clock(time) # draws clock component
         self.__wifi(wifidBm) # draws wifi component
@@ -71,15 +87,18 @@ class Display():
         self.display.fill_rect(0, 8, self.width, 3, 0) # 3 pixel cleared area
         self.display.hline(0, 9, self.width, 1) # 1 pixel line, centered in cleared area
 
-        self.display.show()
+        if draw: self.display.show()
 
     def drawMeasurement(self, text, value):
+
         text = "{}:".format(text[0:15]) # only use first 15 chars of text, because it would overflow the display otherwise
         value = str(value)
-
+        
+        self.header(draw=False)
         self.display.fill_rect(0, 11, self.width, self.height - 11, 0) # clear whole area below separator-line
         self.display.text(text, max(0, int(self.width / 2 - len(text) / 2 * 8)), 24, 1) # position in the center, never go below x=0
         self.display.text(value, max(0, int(self.width / 2 - len(value) / 2 * 8)), 42, 1)
+        self.display.show()
 
     def getView(self):
         return self.__view
