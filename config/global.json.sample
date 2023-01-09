@@ -11,5 +11,14 @@
   "mqtt_port": 1883,
   "mqtt_user": "",
   "mqtt_password": "",
-  "mqtt_update_interval_ms": 10000
+  "mqtt_update_interval_ms": 10000,
+  "mqtt_topic_subscriptions": [
+        "boards/{board_id}/pins/DC_GPIO_01/state",
+        "boards/{board_id}/pins/DC_GPIO_02/state",
+        "boards/{board_id}/pins/DC_GPIO_03/state",
+        "boards/{board_id}/pins/DC_GPIO_04/state",
+        "boards/{board_id}/pins/DC_GPIO_05/state",
+        "boards/{board_id}/pins/DC_GPIO_06/state",
+        "boards/{board_id}/pins/DC_GPIO_07/state"
+  ]
 }

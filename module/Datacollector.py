@@ -3,8 +3,9 @@ from controller.SensorController import SensorController
 
 
 class Datacollector:
-    def __init__(self):
+    def __init__(self, datacollector_controller=None):
         self._sensor_controller = SensorController()
+        self._datacollector_controller = datacollector_controller
         self._board_id = None
         self._board_name = None
         self._last_seen_at = None
@@ -51,6 +52,9 @@ class Datacollector:
     def get_sensor_controller(self):
         return self._sensor_controller
 
+    def get_datacollector_controller(self):
+        return self._sensor_controller
+
     board_id = property(get_board_id)
     board_name = property(get_board_name)
     last_seen_at = property(get_last_seen_at)
@@ -59,3 +63,4 @@ class Datacollector:
     sensor_controller = property(get_sensor_controller)
     configuration = property(get_configuration)
     current_timestamp = property(get_current_timestamp, set_current_timestamp)
+    datacollector_controller = property(get_datacollector_controller)
