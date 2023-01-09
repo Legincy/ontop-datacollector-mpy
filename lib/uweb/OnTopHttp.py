@@ -15,13 +15,13 @@ class OnTopHttp:
 
     def start(self):
         self._server.SetEmbeddedConfig()
+        self._server._slotsCount = 4
         self._server.BindAddress = (self._address, self._port)
         self._server.RootPath = self._source
         self._server.NotFoundURL = '/'
         self._server.StartManaged()
 
 
-#################################################################################################################ä
 @WebRoute(POST, '/wifi-configuration', name="Wifi-Configuration")
 def request_wifi_configuration(server, request):
     data = request.GetPostedURLEncodedForm()
