@@ -4,6 +4,7 @@ import uasyncio as asyncio
 from controller.DatacollectorController import DatacollectorController
 from module.Display import Display
 
+
 class Main:
     display = None
 
@@ -14,19 +15,24 @@ class Main:
     def setup(self):
         self._datacollector_controller.setup()
         self.display = Display(21, 22)
+        sync_completed = False
 
-        # sync system-time via ntp
-        try:
-            # https://forum.micropython.org/posting.php?mode=quote&f=15&p=29387
-            # micropython offers no timezone support - only GMT
-            import ntptime
+        while not sync_completed:
+            # sync system-time via ntp
             import time
 
-            ntptime.host = "pool.ntp.org"
-            ntptime.settime()
-        except:
-            print("Error syncing time")
-        
+            try:
+                # https://forum.micropython.org/posting.php?mode=quote&f=15&p=29387
+                # micropython offers no timezone support - only GMT
+                import ntptime
+
+                ntptime.host = "pool.ntp.org"
+                ntptime.settime()
+                sync_completed = True
+            except Exception as e:
+                print(f"Error syncing time - {e}")
+            time.sleep(5)
+
         self._async_loop.run_until_complete(self.main())
 
     async def main(self):

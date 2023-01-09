@@ -18,8 +18,12 @@ class SensorController:
 
     def prepare_sensor_list(self):
         board_sensor_configuration = self._datacollector.configuration
+
         for sensor_config in board_sensor_configuration:
-            self._sensor_list.append(Sensor(self, sensor_config))
+            try:
+                self._sensor_list.append(Sensor(self, sensor_config))
+            except Exception as e:
+                print(f"Error while setting up sensor source -- {e}\n{sensor_config}")
 
     def is_i2c_addr_used(self, addr_hex):
         is_used = False

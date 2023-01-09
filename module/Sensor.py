@@ -32,7 +32,8 @@ class Sensor:
 
     def get_data_bundle(self):
         sensor_value = self._sensor_get_value_dict[self._sensor_interface]()
-        result_dict = {"uuid": self._sensor_uuid, "name": self._sensor_name, "interface": self._sensor_interface, "timestamp": self._sensor_controller.datacollector.current_timestamp}
+        result_dict = {"uuid": self._sensor_uuid, "name": self._sensor_name, "interface": self._sensor_interface,
+                       "timestamp": self._sensor_controller.datacollector.current_timestamp}
         result_dict.update(sensor_value)
 
         return result_dict
@@ -52,6 +53,7 @@ class Sensor:
         board_pin = self._sensor_controller.pin_config[self._sensor_data["boardPin"]["pin"]]
         board_pin = Pin(board_pin)
         onewire_bus = OneWire(board_pin)
+        print(f"Registered Onewire Device on pin {board_pin}")
 
         onewire_slaves_binary_list = onewire_bus.scan()
         onewire_slaves_hex_list = list(map(lambda addr: binascii.hexlify(addr).decode(), onewire_slaves_binary_list))

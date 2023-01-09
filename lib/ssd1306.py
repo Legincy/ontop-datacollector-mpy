@@ -1,4 +1,4 @@
-# MicroPython SSD1306 OLED driver, I2C and SPI interfaces
+# -*- coding:utf-8 -*-
 
 from micropython import const
 import framebuf
