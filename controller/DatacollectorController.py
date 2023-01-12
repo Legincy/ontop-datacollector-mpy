@@ -62,12 +62,12 @@ class DatacollectorController:
             print("failed to load device config")
 
     def register_device(self):
-        device_uuid = None if self._datacollector._board_id is None else self._datacollector._board_id
+        device_uuid = None if self._datacollector.board_id is None else self._datacollector.board_id
         response_dict = None
 
         try:
             response_dict = self._ontop_service.post_register_board(device_uuid)
-            self.current_time = response_dict["timestamp"]
+            self._datacollector.current_timestamp = response_dict["timestamp"]
 
             with open(self._device_config_path, mode="wb", encoding="utf-8") as device_config:
                 json.dump(response_dict, device_config)
@@ -103,7 +103,7 @@ class DatacollectorController:
 
     def mqtt_gpio_listener(self, topic, msg):
         pin_str = topic.decode("utf-8").partition("pins/")[2].partition("/state")[0]
-        pin_num = self._sensor_controller.pin_config[pin_str]
+        pin_num = self._datacollector.sensor_controller.pin_config[pin_str]
         status = 0 if msg == b'false' else 1
         board_pin = Pin(pin_num, Pin.OUT)
         board_pin.value(status)

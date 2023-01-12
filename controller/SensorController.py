@@ -100,7 +100,7 @@ class SensorController:
         for onewire_addr in onewire_possible_addr_list:
             is_used = False
             for sensor in self._sensor_list:
-                if sensor.onewire_addr == onewire_addr:
+                if sensor.interface_addr == onewire_addr:
                     is_used = True
                     break
             if is_used is False:
