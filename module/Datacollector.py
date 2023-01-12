@@ -4,7 +4,7 @@ from controller.SensorController import SensorController
 
 class Datacollector:
     def __init__(self, datacollector_controller=None):
-        self._sensor_controller = SensorController()
+        self._sensor_controller = SensorController(self)
         self._datacollector_controller = datacollector_controller
         self._board_id = None
         self._board_name = None

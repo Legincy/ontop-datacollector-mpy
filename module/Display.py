@@ -1,4 +1,4 @@
-from machine import Pin, SoftI2C
+from machine import Pin, I2C
 import lib.ssd1306 as ssd1306
 
 class Display():
@@ -8,7 +8,7 @@ class Display():
     def __init__(self, pin_sda, pin_scl):
         self.width = 128
         self.height = 64
-        self.i2c = SoftI2C(sda=Pin(pin_sda), scl=Pin(pin_scl))
+        self.i2c = I2C(sda=Pin(pin_sda), scl=Pin(pin_scl))
         
         # i2c-address is default (0x3C)
         self.display = ssd1306.SSD1306_I2C(self.width, self.height, self.i2c)

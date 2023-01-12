@@ -15,7 +15,6 @@ class DatacollectorController:
     def __init__(self, scope):
         self._scope = scope
         self._datacollector = Datacollector(self)
-        self._sensor_controller = self._datacollector.sensor_controller
         self._mqtt_client = None
         self._ontop_service = OnTopService()
         self._async_loop = self._scope.async_loop
@@ -37,9 +36,7 @@ class DatacollectorController:
             try:
                 self.load_device_config()
                 self.register_device()
-
-                self._sensor_controller.setup(self._datacollector)
-                self._sensor_controller.prepare_sensor_list()
+                self._datacollector.sensor_controller.init_sensor_list()
                 self.mqtt_init_client()
 
                 self._async_loop.create_task(self.task_collect_sensor_data())
@@ -48,7 +45,7 @@ class DatacollectorController:
             except Exception as e:
                 print(f"Error while setting up Datacollector - {e}")
 
-            print(f"Device configuration loaded: {self._datacollector._board_name} ({self._datacollector._board_id})")
+            print(f"Device configuration loaded: {self._datacollector.board_name} ({self._datacollector.board_id})")
         else:
             self.register_device()
 
@@ -97,7 +94,7 @@ class DatacollectorController:
             for topic in self._mqtt_topic_subscriptions:
                 topic_str = topic.format(board_id=self._datacollector.board_id)
                 self._mqtt_client.subscribe(topic_str.encode('ascii'))
-                print(f"Datacollector::mqtt_init_client() -- Topic Subscription: {topic_str}")
+                print(f"Datacollector::mqtt_init_client() -- Topic Subscription: {topic}")
 
     def mqtt_publish(self, topic, message):
         topic_bytes = str.encode(str(topic))
@@ -110,6 +107,9 @@ class DatacollectorController:
         status = 0 if msg == b'false' else 1
         board_pin = Pin(pin_num, Pin.OUT)
         board_pin.value(status)
+
+    def health_check(self):
+        pass
 
     async def task_mqtt_topic_listener(self):
         print("[Thread-Pool]: Running - task_mqtt_topic_listener()")
@@ -124,38 +124,42 @@ class DatacollectorController:
     async def task_collect_sensor_data(self):
         print("[Thread-Pool]: Running - task_collect_sensor_data()")
         while True:
-            for sensor in self._sensor_controller.sensor_list:
+            for sensor in self._datacollector.sensor_controller.sensor_list:
                 try:
-                    sensor_package_dict = sensor.get_data_bundle()
+                    sensor_package_dict = self._datacollector.sensor_controller.get_data_bundle(sensor)
+                    sensor_uuid = sensor_package_dict.pop("uuid")
                     for key in sensor_package_dict:
                         topic = key
                         if type(sensor_package_dict[key]) == dict:
                             for sub_key in sensor_package_dict[key]:
                                 topic = f"{key}/{sub_key}"
                                 self._mqtt_client.publish(
-                                    f"boards/{self._datacollector.board_id}/sensors/{sensor.uuid}/{topic}",
+                                    f"boards/{self._datacollector.board_id}/sensors/{sensor_uuid}/{topic}",
                                     str(sensor_package_dict[key][sub_key]))
                         else:
                             self._mqtt_client.publish(
-                                f"boards/{self._datacollector.board_id}/sensors/{sensor.uuid}/{topic}",
+                                f"boards/{self._datacollector.board_id}/sensors/{sensor_uuid}/{topic}",
                                 str(sensor_package_dict[key]))
                 except Exception as e:
                     print(f"Error while getting data bundle -- {e}")
-            await asyncio.sleep(5)
+            await asyncio.sleep(1)
 
     async def task_heartbeat(self):
         print("[Thread-Pool]: Running - task_heartbeat()")
         last_web_update = -1
         last_mqtt_update = -1
         while True:
-            if self._datacollector.current_timestamp - last_web_update >= 60 or last_web_update == -1:
-                previous_mem = gc.mem_free()
-                response_dict = self._ontop_service.post_heartbeat(self._datacollector.board_id)
-                self._datacollector.current_timestamp = response_dict["timestamp"]
-                last_web_update = self._datacollector.current_timestamp
-                gc.collect()
-                print(f"current_mem: {gc.mem_free()} || previous-mem: {previous_mem}")
-
+            try:
+                if self._datacollector.current_timestamp - last_web_update >= 60 or last_web_update == -1:
+                    previous_mem = gc.mem_free()
+                    response_dict = self._ontop_service.post_heartbeat(self._datacollector.board_id)
+                    self._datacollector.current_timestamp = response_dict["timestamp"]
+                    last_web_update = self._datacollector.current_timestamp
+                    gc.collect()
+                    print(f"current_mem: {gc.mem_free()} || previous-mem: {previous_mem}")
+            except Exception as e:
+                print(f"Error while trying to send a heartbeat -- {e}")
+                
             if self._datacollector.current_timestamp - last_mqtt_update >= 30 or last_mqtt_update == -1:
                 topic = f"boards/{self._datacollector.board_id}/free_memory"
                 self.mqtt_publish(topic, gc.mem_free())
